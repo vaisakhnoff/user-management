@@ -25,8 +25,7 @@ router.put(
   upload.single('profileImage'),
   async (req, res) => {
 
-    console.log('BODY:', req.body)
-    console.log('FILE:', req.file)
+ 
 
   const user = await User.findById(req.user._id)
 

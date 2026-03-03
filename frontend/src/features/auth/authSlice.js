@@ -26,6 +26,21 @@ export const loginUser = createAsyncThunk(
   }
 )
 
+// new thunk for registering users
+export const registerUser = createAsyncThunk(
+  'auth/registerUser',
+  async (formData, thunkAPI) => {
+    try {
+      const response = await axiosInstance.post('/auth/register', formData)
+      return response.data
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || 'Registration failed'
+      )
+    }
+  }
+)
+
 export const loadUser = createAsyncThunk(
   'auth/loadUser',
   async(_,thunkAPI)=>{
@@ -117,6 +132,30 @@ const authSlice = createSlice({
   state.isAuthenticated = false
   localStorage.removeItem('token')
   localStorage.removeItem('role')
+      })
+      // registerUser cases mirror loginUser
+      .addCase(registerUser.pending, (state) => {
+        state.status = 'loading'
+        state.error = null
+      })
+      .addCase(registerUser.fulfilled, (state, action) => {
+        state.status = 'succeeded'
+        state.user = action.payload.user
+        state.token = action.payload.token
+        state.role = action.payload.user.role
+        state.isAuthenticated = true
+
+        localStorage.setItem('token', action.payload.token)
+        localStorage.setItem('role', action.payload.user.role)
+      })
+      .addCase(registerUser.rejected, (state, action) => {
+        state.status = 'failed'
+        state.error = action.payload
+        state.user = null
+        state.role = null
+        state.isAuthenticated = false
+        localStorage.removeItem('token')
+        localStorage.removeItem('role')
       })
       .addCase(updateProfile.fulfilled, (state, action) => {
   state.user = action.payload

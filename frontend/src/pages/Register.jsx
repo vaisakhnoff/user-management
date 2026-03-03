@@ -1,12 +1,15 @@
 import { useState } from 'react'
-import axiosInstance from '../services/axiosInstance'
-import { useNavigate } from 'react-router-dom'
+import { useDispatch } from 'react-redux'
+import { Link, useNavigate } from 'react-router-dom'
+import { registerUser } from '../features/auth/authSlice'
 
 const Register = () => {
   const [form, setForm] = useState({ name: '', email: '', password: '' })
   const [error, setError] = useState(null)
+  const [success, setSuccess] = useState(null)
   const [loading, setLoading] = useState(false)
   const [validationErrors, setValidationErrors] = useState({})
+  const dispatch = useDispatch()
   const navigate = useNavigate()
 
   const handleChange = (e) => {
@@ -50,11 +53,15 @@ const Register = () => {
     setValidationErrors({})
     setLoading(true)
     setError(null)
+    setSuccess(null)
     try {
-      await axiosInstance.post('/auth/register', form)
-      navigate('/')
+      // dispatch thunk and unwrap to catch errors
+      await dispatch(registerUser(form)).unwrap()
+      setSuccess('User created successfully! Redirecting to login...')
+      // give user a moment to read the message
+      setTimeout(() => navigate('/'), 1500)
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed')
+      setError(err || 'Registration failed')
     } finally {
       setLoading(false)
     }
@@ -79,7 +86,16 @@ const Register = () => {
         <button className="button button--primary" type="submit" disabled={loading}>{loading ? 'Registering...' : 'Register'}</button>
       </form>
       {error && <p className="form-error">{error}</p>}
+      {success && <p className="form-success">{success}</p>}
+
+      
+      <div>
+        <p className="form-footer">
+          Have an account? <Link className="text-link" to="/">Login</Link>
+        </p>
+      </div>
     </div>
+    
   )
 }
 

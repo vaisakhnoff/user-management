@@ -34,6 +34,8 @@ const Home = () => {
             </div>
           )}
           <h1 className="welcome">Welcome{user?.name ? `, ${user.name}` : ''}!</h1>
+                      <h1>Your email id : {user.email}</h1>
+
           <p className="muted">Manage your account, view users (if admin), and update your profile.</p>
           <div className="card-actions">
             <button className="button button--primary" onClick={() => setShowProfile(true)}>
